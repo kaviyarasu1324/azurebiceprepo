@@ -23,6 +23,6 @@ stages:
         inlineScript: |
           echo "Deploying Resource Group Bicep..."
           az deployment sub create \
-            --template-file bicep/main.bicep \
+            --template-file main.bicep \
             --parameters @rg.parameters.json \
             --location $location
