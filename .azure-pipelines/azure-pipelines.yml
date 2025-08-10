@@ -1,0 +1,28 @@
+trigger:
+  branches:
+    include:
+      - main   # Change if your default branch is different
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  location: 'eastus'
+  rgName: 'testRG'
+
+stages:
+- stage: DeployResourceGroup
+  jobs:
+  - job: DeployRG
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'AzureServiceConnection'  # Create this in DevOps Project Settings
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          echo "Deploying Resource Group Bicep..."
+          az deployment sub create \
+            --template-file bicep/rg.bicep \
+            --parameters rgName=$rgName location=$location \
+            --location $location
