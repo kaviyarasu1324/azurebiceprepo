@@ -17,7 +17,7 @@ stages:
     steps:
     - task: AzureCLI@2
       inputs:
-        azureSubscription: 'AzureServiceConnection'  # Create this in DevOps Project Settings
+        azureSubscription: 'github.com_kaviyarasu1324'  # Create this in DevOps Project Settings
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
