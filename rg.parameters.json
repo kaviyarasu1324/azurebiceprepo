@@ -3,16 +3,10 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "rgName": {
-      "value": "azurepipelines-rg"
+      "value": "testRG"
     },
     "location": {
       "value": "eastus"
-    },
-    "tags": {
-      "value": {
-        "environment": "test",
-        "owner": "Kaviyarasu"
-      }
     }
   }
 }
