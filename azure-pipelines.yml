@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-      - main   # Change if your default branch is different
+      - main
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -12,22 +12,59 @@ variables:
 
 stages:
 - stage: DeployResourceGroup
-  displayName: 'Deploy Resource Group'
+  displayName: 'Stage 1 - Deploy Resource Group'
   jobs:
   - job: DeployRG
-    displayName: 'Run Azure CLI to deploy Bicep'
+    displayName: 'Job 1 - Deploy using Bicep'
     steps:
-    - checkout: self  # Clones your repo
+
+    - checkout: self
+      displayName: 'Step 1 - Checkout repository'
+
+    - script: |
+        echo "=== DEBUG: Stage: DeployResourceGroup ==="
+        echo "Current working directory:"
+        pwd
+        echo "Listing all files in the repo root:"
+        ls -la
+        echo "Printing pipeline variables:"
+        echo "LOCATION = $location"
+        echo "RG NAME = $rgName"
+      displayName: 'Step 2 - Print debug info and list files'
+
+    - script: |
+        echo "=== DEBUG: Validating Bicep file ==="
+        az bicep version || echo "Bicep CLI not found, installing..."
+        az bicep install
+        az bicep build --file main.bicep
+        echo "Bicep file compiled successfully."
+      displayName: 'Step 3 - Validate Bicep syntax'
 
     - task: AzureCLI@2
-      displayName: 'Deploy Resource Group Bicep'
+      displayName: 'Step 4 - Deploy Resource Group Bicep'
       inputs:
-        azureSubscription: 'AzureRM-Connection'   # Name of your AzureRM service connection
+        azureSubscription: 'AzureRM-Connection'  # Change to your actual AzureRM service connection name
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          echo "Deploying Resource Group Bicep..."
+          echo "=== DEBUG: Starting Azure CLI deployment ==="
+          echo "Using location: $location"
+          echo "Using RG Name: $rgName"
+          echo "Template file content (first 20 lines):"
+          head -n 20 main.bicep
+          echo "Parameters file content:"
+          cat rg.parameters.json
+          
+          echo "Running az deployment sub create..."
           az deployment sub create \
             --template-file main.bicep \
             --parameters @rg.parameters.json \
             --location $location
+
+          echo "=== DEBUG: Deployment finished ==="
+
+    - script: |
+        echo "=== DEBUG: Post-deployment check ==="
+        echo "Listing all resource groups in the subscription:"
+        az group list --query "[].{Name:name,Location:location}" -o table
+      displayName: 'Step 5 - Verify Resource Group creation'
