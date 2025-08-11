@@ -9,7 +9,7 @@ param location string
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: rgName
   location: location
-// MISSING closing brace here
-// Output
+}
+
 output resourceGroupName string = rg.name
 output resourceGroupLocation string = rg.location
