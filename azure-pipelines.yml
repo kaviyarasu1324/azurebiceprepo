@@ -6,14 +6,9 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-variables:
-  location: 'eastus'
-  rgName: 'testRG'
-
-stages:
-  - stage: DeployResourceGroup
-    jobs:
-      - job: DeployRG
-        steps:
-          - checkout: self
-          - script: echo "Hello world"
+jobs:
+  - job: HelloWorldJob
+    displayName: 'Run Hello World Script'
+    steps:
+      - script: echo "Hello World"
+        displayName: 'Print Hello World'
