@@ -6,9 +6,52 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-jobs:
-  - job: HelloWorldJob
-    displayName: 'Run Hello World Script'
-    steps:
-      - script: echo "Hello World"
-        displayName: 'Print Hello World'
+variables:
+  location: 'eastus'
+  rgName: 'testRG'
+
+stages:
+
+  - stage: Build
+    displayName: 'Build Stage'
+    jobs:
+      - job: BuildJob
+        displayName: 'Run Build and Tests'
+        steps:
+          - checkout: self
+          - script: |
+              echo "Building application..."
+              # Add your build commands here
+              echo "Running tests..."
+              # Add your test commands here
+            displayName: 'Build & Test Steps'
+
+  - stage: Deploy
+    displayName: 'Deploy Stage'
+    dependsOn: Build
+    jobs:
+      - job: DeployJob
+        displayName: 'Deploy Resource Group using Bicep'
+        steps:
+          - checkout: self
+          - script: |
+              az bicep version || az bicep install
+              az bicep build --file main.bicep
+            displayName: 'Validate Bicep Template'
+
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'AzureRM-Connection'  # Replace with your service connection name
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az deployment sub create \
+                  --template-file main.bicep \
+                  --parameters @rg.parameters.json \
+                  --location $(location)
+            displayName: 'Deploy Resource Group'
+
+          - script: |
+              echo "Listing all resource groups in the subscription:"
+              az group list --query "[].{Name:name, Location:location}" -o table
+            displayName: 'Verify Deployment'
