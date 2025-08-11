@@ -1,19 +1,19 @@
+// This file deploys a Resource Group at subscription scope
 targetScope = 'subscription'
 
-@description('Name of the Resource Group')
+// Parameters
+@description('The name of the resource group to create')
 param rgName string
 
-@description('Location of the Resource Group')
-param location string = 'eastus'
+@description('The location of the resource group')
+param location string
 
-@description('Tags for the Resource Group')
-param tags object = {
-  environment: 'test'
-  owner: 'Kaviyarasu'
-}
-
+// Resource group definition
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: rgName
   location: location
-  tags: tags
 }
+
+// Output
+output resourceGroupName string = rg.name
+output resourceGroupLocation string = rg.location
