@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-      - main   # Change if your default branch is different
+      - main
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -17,11 +17,11 @@ stages:
     steps:
     - task: AzureCLI@2
       inputs:
-        azureSubscription: 'AzureRM-Connection'  # Create this in DevOps Project Settings
+        azureSubscription: 'AzureRM-Connection'
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          echo "Deploying Resource Group Bicep..."
+          echo "Deploying Resource Group Bicep"
           az deployment sub create \
             --template-file main.bicep \
             --parameters @rg.parameters.json \
